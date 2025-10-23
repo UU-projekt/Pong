@@ -1,5 +1,4 @@
 public interface IPaddleController
 {
-    int GetMove();
-    void Update(int ballY, int paddleY, int paddleHeight);
+    int GetMove(Paddle paddle);
 }

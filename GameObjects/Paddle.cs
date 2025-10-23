@@ -1,36 +1,34 @@
 public class Paddle : GameObject
 {
     private IPaddleController controller;
+    public ConsoleColor paddleColour { get; set; }
 
-    public Paddle(uint width, uint height, IPaddleController controller) 
+    public Paddle(uint width, uint height, IPaddleController controller)
         : base(width, height)
     {
         this.controller = controller;
+        paddleColour = ConsoleColor.Green;
     }
 
-    public void UpdateController(int ballY, int paddleY, int paddleHeight)
+    public override void Update()
     {
-        controller.Update(ballY, paddleY, paddleHeight);
-    }
-
-    public void Move()
-    {
-        int move = controller.GetMove();
+        int move = controller.GetMove(this);
         if (move != 0)
         {
             TranslateClamped(0, move);
         }
     }
 
-    public void Draw()
+    public override void Draw()
     {
+        Console.ForegroundColor = paddleColour;
         for (uint i = 0; i < Size.Height; i++)
         {
             Console.SetCursorPosition(
-                (int)Position.X, 
+                (int)Position.X,
                 (int)(Position.Y + i)
             );
-            Console.Write("|");
+            Console.Write("█");
         }
     }
 }
