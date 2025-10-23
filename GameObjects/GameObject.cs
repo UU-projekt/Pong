@@ -8,12 +8,6 @@ public abstract class GameObject
         Size = (width, height);
     }
 
-    /// <summary>
-    /// Translates the GameObject corresponding to the change defined by <paramref name="deltaX"/> and <paramref name="deltaY"/>.
-    /// </summary>
-    /// <param name="deltaX">Change in X position</param>
-    /// <param name="deltaY">Change in Y position</param>
-    /// <exception cref="ArgumentOutOfRangeException">if the translation would underflow Position.X or Position.Y</exception>
     public void Translate(int deltaX, int deltaY)
     {
         if (deltaX < 0 && Math.Abs(deltaX) > Position.X)
@@ -23,13 +17,7 @@ public abstract class GameObject
 
         Position = ((uint)(Position.X + deltaX), (uint)(Position.Y + deltaY));
     }
-
-    /// <summary>
-    /// Translates the GameObject corresponding to the change defined by <paramref name="deltaX"/> and <paramref name="deltaY"/>.
-    /// Clamped to prevent underflow
-    /// </summary>
-    /// <param name="deltaX">Change in X position</param>
-    /// <param name="deltaY">Change in Y position</param>
+   
     public void TranslateClamped(int deltaX, int deltaY)
     {
         if (deltaX < 0 && Math.Abs(deltaX) > Position.X)
