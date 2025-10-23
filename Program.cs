@@ -1,9 +1,4 @@
-﻿//var paddle = new Paddle(5, 5);
-Console.WriteLine("PONG PONG PONG PONG :D");
-
-
-
-var ball = new Ball(1, 1, 1, 1);
+﻿var ball = new Ball(1, 1, 1, 1);
 
 // CONTROLLERS
 var cpuController = new CPUController(ball);
@@ -39,5 +34,6 @@ while (true)
         Console.ResetColor();
     }
 
+    // Pausa 100ms mellan varje frame så spelet inte går för fort
     Thread.Sleep(100);
 }

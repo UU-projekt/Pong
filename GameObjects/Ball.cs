@@ -17,11 +17,6 @@ public class Ball : GameObject
         TranslateClamped(VelocityX, VelocityY);
     }
 
-    public void OnCollision()
-    {
-
-    }
-
     public void BounceVertical()
     {
         VelocityY = -VelocityY;

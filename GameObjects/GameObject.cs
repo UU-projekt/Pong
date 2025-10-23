@@ -21,31 +21,26 @@ public abstract class GameObject
         Position = ((uint)(Position.X + deltaX), (uint)(Position.Y + deltaY));
     }
 
+
     public void TranslateClamped(int deltaX, int deltaY)
     {
-        // Clamp deltaX to prevent underflow
         if (deltaX < 0 && Math.Abs(deltaX) > Position.X)
             deltaX = (int)Position.X * -1;
 
-        // Clamp deltaY to prevent underflow
         if (deltaY < 0 && Math.Abs(deltaY) > Position.Y)
             deltaY = (int)Position.Y * -1;
 
-        // Calculate new position
         uint newX = (uint)(Position.X + deltaX);
         uint newY = (uint)(Position.Y + deltaY);
 
-        // Clamp newX to console buffer width
         uint maxX = (uint)(Console.BufferWidth - Size.Width);
         if (newX > maxX)
             newX = maxX;
 
-        // Clamp newY to console buffer height
         uint maxY = (uint)(Console.BufferHeight - Size.Height);
         if (newY > maxY)
             newY = maxY;
 
-        // Update position
         Position = (newX, newY);
     }
 
