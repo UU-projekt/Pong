@@ -1,30 +1,34 @@
 using System.Collections;
+using System.Collections;
+using System.Collections.Generic;
 
-public class GameObjectCollection<T> : IEnumerable<T>
+public class GameObjectCollection<T> : IEnumerable<T> 
+    where T : GameObject
 {
-    private Dictionary<string, T> _objects = new();
+    private List<T> items = new List<T>();
 
-    public void AddItem(string ItemId, T Item)
+    public void Add(T item)
     {
-        _objects.Add(ItemId, Item);
+        items.Add(item);
     }
 
-    public T? GetItem(string ItemId)
+    public void Remove(T item)
     {
-        return _objects[ItemId];
+        items.Remove(item);
     }
 
-    public Y? GetItemAs<Y>(string ItemId) where Y : T
+    public void Clear()
     {
-        var itemAsGameObject = GetItem(ItemId);
-        if (itemAsGameObject is not Y) throw new InvalidCastException();
-
-        return (Y)itemAsGameObject;
+        items.Clear();
     }
+
+    public int Count => items.Count;
+
+    public T this[int index] => items[index];
 
     public IEnumerator<T> GetEnumerator()
     {
-        return _objects.Values.GetEnumerator();
+        return items.GetEnumerator();
     }
 
     IEnumerator IEnumerable.GetEnumerator()
