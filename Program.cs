@@ -1,39 +1,23 @@
-﻿var ball = new Ball(1, 1, 1, 1);
-
-// CONTROLLERS
-var cpuController = new CPUController(ball);
-var humanController = new HumanController();
-
-// PADDLES
-// (vi bör fixa builders för dessa)
-var paddle1 = new Paddle(5, 5, humanController);
-paddle1.paddleColour = ConsoleColor.White;
-paddle1.MoveTo(1, 0);
-
-
-var paddle2 = new Paddle(5, 5, cpuController);
-paddle2.paddleColour = ConsoleColor.DarkRed;
-paddle2.MoveTo((uint)Console.BufferWidth - 1, 0);
-
-var gameItems = new GameObjectCollection<GameObject>();
-gameItems.AddItem("paddle1", paddle1);
-gameItems.AddItem("paddle2", paddle2);
-gameItems.AddItem("ball", ball);
-
-Console.CursorVisible = false;
-
-// GAME LOOP
-while (true)
+﻿
+var gameState = new GameState()
 {
-    Console.Clear();
+    state = StateOption.PLAYING,
+    LeftPlayerName = "Människa",
+    RightPlayerName = "Dator"
+};
 
-    foreach (var gameObject in gameItems)
-    {
-        gameObject.Update();
-        gameObject.Draw();
-        Console.ResetColor();
-    }
+var scenes = new Dictionary<StateOption, Scene>
+{
+    { StateOption.PLAYING, new GameScene() },
+    { StateOption.GAME_COMPLETED, new GameOver() }
+};
 
-    // Pausa 100ms mellan varje frame så spelet inte går för fort
-    Thread.Sleep(100);
+Scene? lastScene = null;
+while (gameState.state != StateOption.SHOULD_EXIT)
+{
+    var scene = scenes[gameState.state] ?? throw new NotImplementedException($"No scene exists for GameState \"{gameState.state}\"");
+    if (lastScene == null || lastScene != scene) scene.BeforeFirstRender();
+
+    scene.render(gameState);
+    lastScene = scene;
 }

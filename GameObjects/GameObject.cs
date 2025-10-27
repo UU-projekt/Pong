@@ -1,14 +1,14 @@
 public abstract class GameObject
 {
-    public (uint X, uint Y) Position { get; private set; } = (0, 0);
-    public (uint Width, uint Height) Size { get; }
+    public (int X, int Y) Position { get; private set; } = (0, 0);
+    public (int Width, int Height) Size { get; }
 
-    protected GameObject(uint width, uint height)
+    protected GameObject(int width, int height)
     {
         Size = (width, height);
     }
 
-    public abstract void Update();
+    public abstract void Update(GameState state);
     public abstract void Draw();
 
     public void Translate(int deltaX, int deltaY)
@@ -18,7 +18,7 @@ public abstract class GameObject
         if (deltaY < 0 && Math.Abs(deltaY) > Position.Y)
             throw new ArgumentOutOfRangeException(nameof(deltaY), "Translation would underflow Position.Y");
 
-        Position = ((uint)(Position.X + deltaX), (uint)(Position.Y + deltaY));
+        Position = (Position.X + deltaX, Position.Y + deltaY);
     }
 
 
@@ -30,21 +30,21 @@ public abstract class GameObject
         if (deltaY < 0 && Math.Abs(deltaY) > Position.Y)
             deltaY = (int)Position.Y * -1;
 
-        uint newX = (uint)(Position.X + deltaX);
-        uint newY = (uint)(Position.Y + deltaY);
+        int newX = Position.X + deltaX;
+        int newY = Position.Y + deltaY;
 
-        uint maxX = (uint)(Console.BufferWidth - Size.Width);
+        int maxX = Console.BufferWidth - Size.Width;
         if (newX > maxX)
             newX = maxX;
 
-        uint maxY = (uint)(Console.BufferHeight - Size.Height);
+        int maxY = Console.BufferHeight - Size.Height;
         if (newY > maxY)
             newY = maxY;
 
         Position = (newX, newY);
     }
 
-    public void MoveTo(uint posX, uint posY)
+    public void MoveTo(int posX, int posY)
     {
         Position = (posX, posY);
     }
@@ -63,14 +63,5 @@ public abstract class GameObject
         var deltaYPow2 = VecDistance.deltaY * VecDistance.deltaY;
         var combined = deltaXPow2 + deltaYPow2;
         return Math.Sqrt(combined);
-    }
-
-    public bool CollidesWith(GameObject other)
-    {
-        bool xOverlap = Position.X < other.Position.X + other.Size.Width &&
-                Position.X + Size.Width > other.Position.X;
-        bool yOverlap = Position.Y < other.Position.Y + other.Size.Height &&
-                        Position.Y + Size.Height > other.Position.Y;
-        return xOverlap && yOverlap;
     }
 }

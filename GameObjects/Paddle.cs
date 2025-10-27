@@ -3,14 +3,14 @@ public class Paddle : GameObject
     private IPaddleController controller;
     public ConsoleColor paddleColour { get; set; }
 
-    public Paddle(uint width, uint height, IPaddleController controller)
-        : base(width, height)
+    public Paddle(int height, IPaddleController controller)
+        : base(1, height)
     {
         this.controller = controller;
         paddleColour = ConsoleColor.Green;
     }
 
-    public override void Update()
+    public override void Update(GameState state)
     {
         int move = controller.GetMove(this);
         if (move != 0)
