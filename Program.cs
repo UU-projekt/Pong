@@ -1,10 +1,5 @@
 ﻿
-var gameState = new GameState()
-{
-    state = StateOption.PLAYING,
-    LeftPlayerName = "Människa",
-    RightPlayerName = "Dator"
-};
+var gameState = new GameState("Människa", "Dator");
 
 var factory = new DefaultGameObjectFactory();
 
@@ -15,10 +10,10 @@ var scenes = new Dictionary<StateOption, Scene>
 };
 
 Scene? lastScene = null;
-while (gameState.state != StateOption.SHOULD_EXIT)
+while (gameState.State != StateOption.SHOULD_EXIT)
 {
-    var scene = scenes[gameState.state] ?? throw new NotImplementedException($"No scene exists for GameState \"{gameState.state}\"");
-    if (lastScene == null || lastScene != scene) scene.BeforeFirstRender();
+    var scene = scenes[gameState.State] ?? throw new NotImplementedException($"No scene exists for GameState \"{gameState.State}\"");
+    if (lastScene == null || lastScene != scene) scene.BeforeFirstRender(gameState);
 
     scene.render(gameState);
     lastScene = scene;

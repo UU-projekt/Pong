@@ -5,6 +5,7 @@ public class GameScene : Scene
     private Paddle _paddle2 = null!;
     private Ball _ball = null!;
     private readonly GameObjectCollection<GameObject> gameItems = new GameObjectCollection<GameObject>();
+    private DateTime GameStarted;
 
     public GameScene(IGameObjectFactory factory)
     {
@@ -15,6 +16,7 @@ public class GameScene : Scene
     public void InitObjects()
     {
         gameItems.Clear();
+        GameStarted = DateTime.Now;
         _ball = _factory.CreateBall();
         _paddle1 = _factory.CreatePaddle(PlayerType.HUMAN);
         _paddle2 = _factory.CreatePaddle(PlayerType.COMPUTER);
@@ -29,12 +31,19 @@ public class GameScene : Scene
         {
             cpu.AttatchBall(_ball);
         }
+
+
     }
 
-    public override void BeforeFirstRender()
+    public override void BeforeFirstRender(GameState state)
     {
         Console.CursorVisible = false;
         InitObjects();
+        _ball.OnScored += direction =>
+        {
+            var diff = DateTime.Now - GameStarted;
+            state.SetWinner(direction, _ball.Bounces, diff);
+        };
     }
 
     public override void render(GameState state)

@@ -24,9 +24,21 @@ public class TextBuilder : GUIBuilder
         return (calcX, calcY);
     }
 
+    public TextBuilder SetSize(int? width, int? height)
+    {
+        Size = (width ?? Size.Width, height ?? Size.Height);
+        return this;
+    }
+
     public TextBuilder SetWidth(int width)
     {
-        Size = (width, Size.Height);
+        SetSize(width, null);
+        return this;
+    }
+
+    public TextBuilder SetHeight(int height)
+    {
+        SetSize(null, height);
         return this;
     }
 

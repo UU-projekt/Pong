@@ -17,24 +17,33 @@ public class GUIText : GameObject
         MoveTo(posX, posY);
     }
 
-    public override void Draw()
+    private void DrawLine(string line, int offset)
     {
         switch (align)
         {
             case AlignType.LEFT:
-                Console.SetCursorPosition((int)Position.X, (int)Position.Y);
+                Console.SetCursorPosition(Position.X, Position.Y + offset);
                 break;
             case AlignType.RIGHT:
-                int rightBoundPosition = (int)Position.X + (int)Size.Width;
-                Console.SetCursorPosition(rightBoundPosition - Text.Length, (int)Position.Y);
+                int rightBoundPosition = Position.X + Size.Width;
+                Console.SetCursorPosition(rightBoundPosition - line.Length, Position.Y + offset);
                 break;
             case AlignType.CENTER:
-                int textLenDiv = Text.Length / 2;
-                int centerPosition = (int)Position.X + (int)(Size.Width / 2);
-                Console.SetCursorPosition(centerPosition - textLenDiv, (int)Position.Y);
+                int textLenDiv = line.Length / 2;
+                int centerPosition = Position.X + (Size.Width / 2);
+                Console.SetCursorPosition(centerPosition - textLenDiv, Position.Y + offset);
                 break;
         }
-        Console.WriteLine(Text);
+        Console.WriteLine(line);
+    }
+
+    public override void Draw()
+    {
+        var lines = Text.Split(Environment.NewLine);
+        for (int i = 0; i < lines.Length; i++)
+        {
+            DrawLine(lines[i], i);
+        }
     }
 
     public override void Update(GameState state)

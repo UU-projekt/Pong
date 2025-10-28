@@ -5,12 +5,16 @@ public class Ball : GameObject
     public int VelocityY { get; set; }
     private Paddle _paddle1;
     private Paddle _paddle2;
+    public int Bounces { get; private set; }
+
+    public event Action<Direction>? OnScored;
 
     public Ball(int velocityX, int velocityY)
         : base(1, 1)
     {
         VelocityX = velocityX;
         VelocityY = velocityY;
+        Bounces = 0;
     }
 
     public void SetPaddles(Paddle paddle1, Paddle paddle2)
@@ -21,13 +25,13 @@ public class Ball : GameObject
 
     private void CheckPaddleBounce(Paddle paddle)
     {
-        int nextX = (int)Position.X + VelocityX;
-        int nextY = (int)Position.Y + VelocityY;
+        int nextX = Position.X + VelocityX;
+        int nextY = Position.Y + VelocityY;
 
-        int paddleLeft = (int)paddle.Position.X;
-        int paddleRight = paddleLeft + (int)paddle.Size.Width - 1;
-        int paddleTop = (int)paddle.Position.Y;
-        int paddleBottom = paddleTop + (int)paddle.Size.Height - 1;
+        int paddleLeft = paddle.Position.X;
+        int paddleRight = paddleLeft + paddle.Size.Width - 1;
+        int paddleTop = paddle.Position.Y;
+        int paddleBottom = paddleTop + paddle.Size.Height - 1;
 
         bool crossesHorizontally = false;
 
@@ -44,6 +48,7 @@ public class Ball : GameObject
 
         if (crossesHorizontally && overlapsVertically)
         {
+            Bounces += 1;
             BounceHorizontal();
         }
     }
@@ -59,11 +64,9 @@ public class Ball : GameObject
 
         bool collidesLeft = Position.X == 0;
         bool collidesRight = Position.X == Console.BufferWidth - 1;
-        if (collidesLeft || collidesRight)
-        {
-            state.state = StateOption.GAME_COMPLETED;
-            state.Winner = collidesLeft ? state.RightPlayerName : state.LeftPlayerName;
-        }
+
+        if (collidesLeft) OnScored?.Invoke(Direction.RIGHT);
+        else if (collidesRight) OnScored?.Invoke(Direction.LEFT);
 
         TranslateClamped(VelocityX, VelocityY);
     }
@@ -80,7 +83,7 @@ public class Ball : GameObject
 
     public override void Draw()
     {
-        Console.SetCursorPosition((int)Position.X, (int)Position.Y);
+        Console.SetCursorPosition(Position.X, Position.Y);
         Console.Write("O");
     }
 }
