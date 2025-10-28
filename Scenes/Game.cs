@@ -1,41 +1,40 @@
 public class GameScene : Scene
 {
-    private Paddle _paddle1;
-    private Paddle _paddle2;
-    private Ball _ball;
-    private GameObjectCollection<GameObject> gameItems = new GameObjectCollection<GameObject>();
-    public GameScene()
+    private readonly IGameObjectFactory _factory;
+    private Paddle _paddle1 = null!;
+    private Paddle _paddle2 = null!;
+    private Ball _ball = null!;
+    private readonly GameObjectCollection<GameObject> gameItems = new GameObjectCollection<GameObject>();
+
+    public GameScene(IGameObjectFactory factory)
     {
-        var ball = new Ball(1, 1);
+        _factory = factory;
+        InitObjects();
+    }
 
-        // CONTROLLERS
-        var cpuController = new CPUController(ball);
-        var humanController = new HumanController();
+    public void InitObjects()
+    {
+        gameItems.Clear();
+        _ball = _factory.CreateBall();
+        _paddle1 = _factory.CreatePaddle(PlayerType.HUMAN);
+        _paddle2 = _factory.CreatePaddle(PlayerType.COMPUTER);
 
-        // PADDLES
-        // (vi bör fixa builders för dessa)
-        var paddle1 = new Paddle(5, humanController);
-        paddle1.paddleColour = ConsoleColor.White;
+        gameItems.Add(_paddle1);
+        gameItems.Add(_paddle2);
+        gameItems.Add(_ball);
 
-        var paddle2 = new Paddle(5, cpuController);
-        paddle2.paddleColour = ConsoleColor.DarkRed;
+        _ball.SetPaddles(_paddle1, _paddle2);
 
-        gameItems.Add(paddle1);
-        gameItems.Add(paddle2);
-        gameItems.Add(ball);
-
-        _paddle1 = paddle1;
-        _paddle2 = paddle2;
-        _ball = ball;
-        ball.SetPaddles(paddle1, paddle2);
+        if (_paddle2.controller is CPUController cpu)
+        {
+            cpu.AttatchBall(_ball);
+        }
     }
 
     public override void BeforeFirstRender()
     {
         Console.CursorVisible = false;
-        _paddle1.MoveTo(0, 0);
-        _paddle2.MoveTo(Console.BufferWidth - 1, 0);
-        _ball.MoveTo(Console.BufferWidth / 2, Console.BufferHeight / 2);
+        InitObjects();
     }
 
     public override void render(GameState state)

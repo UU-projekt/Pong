@@ -1,6 +1,6 @@
 public class Paddle : GameObject
 {
-    private IPaddleController controller;
+    public readonly IPaddleController controller;
     public ConsoleColor paddleColour { get; set; }
 
     public Paddle(int height, IPaddleController controller)

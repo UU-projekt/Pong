@@ -6,9 +6,11 @@ var gameState = new GameState()
     RightPlayerName = "Dator"
 };
 
+var factory = new DefaultGameObjectFactory();
+
 var scenes = new Dictionary<StateOption, Scene>
 {
-    { StateOption.PLAYING, new GameScene() },
+    { StateOption.PLAYING, new GameScene(factory) },
     { StateOption.GAME_COMPLETED, new GameOver() }
 };
 
