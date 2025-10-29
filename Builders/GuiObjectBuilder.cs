@@ -5,8 +5,9 @@ interface GUIBuilder
 
 public class TextBuilder : GUIBuilder
 {
-    public (int Width, int Height) Size { get; private set; }
-    public (int X, int Y) Position { get; private set; }
+    public (int Width, int Height) Size { get; private set; } = (0, 0);
+    public (int X, int Y) Position { get; private set; } = (0, 0);
+    public (ConsoleColor Background, ConsoleColor Foreground) Colours = (ConsoleColor.Black, ConsoleColor.White);
     private readonly MenuBuilder _parent;
     public AlignType alignType = AlignType.LEFT;
     public string? TextContent;
@@ -50,6 +51,24 @@ public class TextBuilder : GUIBuilder
         double percentage = double.Parse(number) / 100;
 
         Size = ((int)(_parent.Size.Width * percentage), Size.Height);
+        return this;
+    }
+
+    public TextBuilder SetColours(ConsoleColor? background, ConsoleColor? foreground)
+    {
+        Colours = (background ?? Colours.Background, foreground ?? Colours.Foreground);
+        return this;
+    }
+
+    public TextBuilder SetForegroundColour(ConsoleColor foreground)
+    {
+        SetColours(null, foreground);
+        return this;
+    }
+
+    public TextBuilder SetBackgroundColour(ConsoleColor background)
+    {
+        SetColours(background, null);
         return this;
     }
 
@@ -104,15 +123,15 @@ public class TextBuilder : GUIBuilder
     public GameObject Build()
     {
         var thisPosition = GetCalculatedPosition();
-        return new GUIText(TextContent ?? "<null>", Size.Width, Size.Height, thisPosition.X, thisPosition.Y, alignType);
+        return new GUIText(TextContent ?? "<null>", Size.Width, Size.Height, thisPosition.X, thisPosition.Y, alignType) { FGColour = Colours.Foreground, BGColour = Colours.Background };
     }
 }
 
 public class MenuBuilder
 {
-    public (int Width, int Height) Size { get; private set; }
-    public (int X, int Y) Position { get; private set; }
-    private readonly List<GUIBuilder> _items = new List<GUIBuilder>();
+    public (int Width, int Height) Size { get; private set; } = (0, 0);
+    public (int X, int Y) Position { get; private set; } = (0, 0);
+    private readonly List<GUIBuilder> _items = [];
     public MenuBuilder(int width, int height)
     {
         Size = (width, height);
@@ -145,7 +164,7 @@ public class MenuBuilder
 
         double percentage = double.Parse(number) / 100;
 
-        Size = (Size.Width, (int)(Console.BufferWidth * percentage));
+        Size = (Size.Width, (int)(Console.BufferHeight * percentage));
     }
 
     public void Center()

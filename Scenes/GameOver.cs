@@ -24,7 +24,7 @@ Duration: {timeString}
 
         var MenuBuilder = new MenuBuilder(Console.BufferWidth / 2, Console.BufferHeight / 2);
         MenuBuilder.Center();
-        MenuBuilder.AddText(header => header.SetText("GAME OVER").SetPosition(2, null));
+        MenuBuilder.AddText(header => header.SetText(" GAME OVER ").SetPosition(2, null).SetColours(ConsoleColor.White, ConsoleColor.Black));
         MenuBuilder.AddText(info => info.SetText(infoString).SetPosition(2, 1).SetHeight(3));
         MenuBuilder.AddText(footer =>
             footer

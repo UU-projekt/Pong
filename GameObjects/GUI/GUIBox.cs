@@ -6,10 +6,6 @@ public class GUIBox : GameObject
     {
         MoveTo(posX, posY);
     }
-
-
-
-
     public override void Draw()
     {
         for (int i = 0; i <= Size.Height; i++)

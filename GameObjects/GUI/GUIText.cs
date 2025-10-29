@@ -9,6 +9,8 @@ public class GUIText : GameObject
 {
     public readonly AlignType align;
     public string Text;
+    public ConsoleColor FGColour = Console.ForegroundColor;
+    public ConsoleColor BGColour = Console.BackgroundColor;
     public GUIText(string text, int width, int height, int posX, int posY, AlignType alignMode)
         : base(width, height)
     {
@@ -39,11 +41,16 @@ public class GUIText : GameObject
 
     public override void Draw()
     {
+        Console.ForegroundColor = FGColour;
+        Console.BackgroundColor = BGColour;
+
         var lines = Text.Split(Environment.NewLine);
         for (int i = 0; i < lines.Length; i++)
         {
             DrawLine(lines[i], i);
         }
+
+        Console.ResetColor();
     }
 
     public override void Update(GameState state)
