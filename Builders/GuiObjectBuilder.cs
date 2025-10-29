@@ -141,11 +141,18 @@ public class TextBuilder : GUIBuilder<TextBuilder>
 public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
 {
     public string? Label;
+    private Action<string>? _bindAction;
     private List<(string Name, string Value)> _values = [];
 
     public SelectMenuBuilder(MenuBuilder parent) : base(parent)
     {
 
+    }
+
+    public SelectMenuBuilder BindValue(Action<string> setter)
+    {
+        _bindAction = setter;
+        return this;
     }
 
     public SelectMenuBuilder SetLabel(string label)
@@ -163,7 +170,7 @@ public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
     public override GameObject Build()
     {
         var (X, Y) = GetCalculatedPosition();
-        var SelectObject = new GUISelect(Label ?? "Select Menu", Size.Width, Size.Height, X, Y);
+        var SelectObject = new GUISelect(Label ?? "Select Menu", Size.Width, Size.Height, X, Y) { OnSelectionChanged = _bindAction };
         _values.ForEach((Item) => SelectObject.AddItem(Item.Name, Item.Value));
         return SelectObject;
     }
@@ -177,12 +184,25 @@ public class MenuBuilder
     public MenuBuilder(int width, int height)
     {
         Size = (width, height);
+        Center();
+    }
+
+    public void SetSize(int? width, int? height)
+    {
+        Size = (width ?? Size.Width, height ?? Size.Height);
+        Center();
     }
 
     public void SetWidth(int width)
     {
-        Size = (width, Size.Height);
+        SetSize(width, null);
     }
+
+    public void SetHeight(int height)
+    {
+        SetSize(null, height);
+    }
+
 
     public void SetWidth(string width)
     {
@@ -191,13 +211,9 @@ public class MenuBuilder
 
         double percentage = double.Parse(number) / 100;
 
-        Size = ((int)(Console.BufferWidth * percentage), Size.Height);
+        SetWidth((int)(Console.BufferWidth * percentage));
     }
 
-    public void SetHeight(int height)
-    {
-        Size = (Size.Width, height);
-    }
 
     public void SetHeight(string height)
     {
@@ -206,10 +222,10 @@ public class MenuBuilder
 
         double percentage = double.Parse(number) / 100;
 
-        Size = (Size.Width, (int)(Console.BufferHeight * percentage));
+        SetHeight((int)(Console.BufferHeight * percentage));
     }
 
-    public void Center()
+    private void Center()
     {
         int posXCentered = Console.BufferWidth / 2 - Size.Width / 2;
         int posYCentered = Console.BufferHeight / 2 - Size.Height / 2;
@@ -226,9 +242,8 @@ public class MenuBuilder
     public void AddText(Action<TextBuilder> configure) => AddGeneric(configure);
     public void AddSelectMenu(Action<SelectMenuBuilder> configure) => AddGeneric(configure);
 
-    public List<GameObject> Build()
+    public GUIMenu Build()
     {
-        var bg = new GUIBox(Size.Width, Size.Height, Position.X, Position.Y);
-        return [bg, .. _items.Select(b => b.Build())];
+        return new GUIMenu(Size.Width, Size.Height) { gameObjects = _items.Select(obj => obj.Build()).ToList() };
     }
 }

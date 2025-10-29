@@ -4,13 +4,23 @@ public struct SelectMenuItem
     public string Value;
 }
 
-public class GUISelect : GameObject
+public class GUISelect : GameObject, IGuiInteractiveElement
 {
     static readonly char UNFILLED_DOT = '○';
-    static readonly char FILLED_DOT = '•';
+    static readonly char FILLED_DOT = '●';
     public List<SelectMenuItem> Items = [];
     public string Label;
-    private int _valuePointer = 0;
+    private int _pointer = 0;
+    private int pointer
+    {
+        get { return _pointer; }
+        set
+        {
+            _pointer = value;
+            OnSelectionChanged?.Invoke(Items[_pointer].Value);
+        }
+    }
+    public Action<string>? OnSelectionChanged;
 
     public GUISelect(string text, int width, int height, int posX, int posY)
         : base(width, height)
@@ -28,7 +38,7 @@ public class GUISelect : GameObject
     public void SetPointer(int pointer)
     {
         if (pointer > Items.Count) throw new ArgumentOutOfRangeException($"New pointer exceeds Item count ({Items.Count})");
-        _valuePointer = pointer;
+        this.pointer = pointer;
     }
 
     public override void Draw()
@@ -39,7 +49,7 @@ public class GUISelect : GameObject
 
         for (int i = 0; i < Items.Count; i++)
         {
-            char dot = i == _valuePointer ? FILLED_DOT : UNFILLED_DOT;
+            char dot = i == pointer ? FILLED_DOT : UNFILLED_DOT;
             int offset = 2 + i;
             Console.SetCursorPosition(Position.X, Position.Y + offset);
             string selectItemLine = $"{dot} {Items[i].Name}";
@@ -49,6 +59,29 @@ public class GUISelect : GameObject
 
         Console.SetCursorPosition(Position.X, Position.Y + 1);
         Console.WriteLine(new string('=', Size.Width is not 0 ? Size.Width : longestLine));
+    }
+
+    public void Next()
+    {
+        pointer = Math.Min(pointer + 1, Items.Count - 1);
+    }
+
+    public void Prev()
+    {
+        pointer = Math.Max(pointer - 1, 0);
+    }
+
+    public void Update(GameState state, ConsoleKeyInfo keydown)
+    {
+        switch (keydown.Key)
+        {
+            case ConsoleKey.UpArrow:
+                Prev();
+                break;
+            case ConsoleKey.DownArrow:
+                Next();
+                break;
+        }
     }
 
     public override void Update(GameState state)

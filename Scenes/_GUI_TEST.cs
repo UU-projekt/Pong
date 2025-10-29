@@ -1,5 +1,7 @@
 public class DEV_GUITEST : Scene
 {
+    public GUIMenu menu;
+    private string _selectValue = "";
     public DEV_GUITEST()
     {
 
@@ -8,25 +10,23 @@ public class DEV_GUITEST : Scene
     public override void BeforeFirstRender(GameState _state)
     {
         Console.CursorVisible = true;
+        var MenuBuilder = new MenuBuilder(Console.BufferWidth / 2, Console.BufferHeight / 2);
+        MenuBuilder.AddText(header => header.SetText(" GUI TEST ").SetPosition(2, null).SetColours(ConsoleColor.White, ConsoleColor.Black));
+        MenuBuilder.AddSelectMenu(sm => sm
+        .SetLabel("SELECT")
+        .AddItem("Test", "TEST1")
+        .AddItem("Test 2", "TEST2")
+        .SetPosition(2, 2)
+        .BindValue(val => _selectValue = val)
+        );
+
+        menu = MenuBuilder.Build();
     }
 
     public override void render(GameState state)
     {
-        string timeString = $"{state.LastGame.Duration.TotalSeconds:N2} seconds";
-
-        string infoString = $@"
-Winner: {state.LastGame.Winner}
-Bounces: {state.LastGame.Bounces}
-Duration: {timeString}
-        ";
-
-        var MenuBuilder = new MenuBuilder(Console.BufferWidth / 2, Console.BufferHeight / 2);
-        MenuBuilder.Center();
-        MenuBuilder.AddText(header => header.SetText(" GUI TEST ").SetPosition(2, null).SetColours(ConsoleColor.White, ConsoleColor.Black));
-        MenuBuilder.AddSelectMenu(sm => sm.SetLabel("SELECT").AddItem("Test", "TEST").AddItem("Test 2", "TEST2").SetPosition(2, 2));
-
-        MenuBuilder.Build().ForEach(item => item.Draw());
-
-        Console.ReadKey();
+        menu.Draw();
+        menu.Update(state);
+        Thread.Sleep(100);
     }
 }

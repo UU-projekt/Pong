@@ -23,7 +23,6 @@ Duration: {timeString}
         ";
 
         var MenuBuilder = new MenuBuilder(Console.BufferWidth / 2, Console.BufferHeight / 2);
-        MenuBuilder.Center();
         MenuBuilder.AddText(header => header.SetText(" GAME OVER ").SetPosition(2, null).SetColours(ConsoleColor.White, ConsoleColor.Black));
         MenuBuilder.AddText(info => info.SetText(infoString).SetPosition(2, 1).SetHeight(3));
         MenuBuilder.AddText(footer =>
@@ -34,7 +33,7 @@ Duration: {timeString}
                 .SetAlign(AlignType.RIGHT)
                 .SetOffsetVertical(1));
 
-        MenuBuilder.Build().ForEach(item => item.Draw());
+        MenuBuilder.Build().Draw();
 
         Thread.Sleep(WAIT_BEFORE_TAKING_INPUTS);
         var key = Console.ReadKey();
