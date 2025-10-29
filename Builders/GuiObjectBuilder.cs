@@ -1,18 +1,17 @@
-interface GUIBuilder
+public interface IGUIBuilder
 {
-    public GameObject Build();
+    GameObject Build();
 }
 
-public class TextBuilder : GUIBuilder
+public abstract class GUIBuilder<TBuilder> : IGUIBuilder
+    where TBuilder : GUIBuilder<TBuilder>
 {
-    public (int Width, int Height) Size { get; private set; } = (0, 0);
-    public (int X, int Y) Position { get; private set; } = (0, 0);
-    public (ConsoleColor Background, ConsoleColor Foreground) Colours = (ConsoleColor.Black, ConsoleColor.White);
-    private readonly MenuBuilder _parent;
-    public AlignType alignType = AlignType.LEFT;
-    public string? TextContent;
+    public (int Width, int Height) Size { get; protected set; } = (0, 0);
+    public (int X, int Y) Position { get; protected set; } = (0, 0);
+    public abstract GameObject Build();
+    protected readonly MenuBuilder _parent;
 
-    public TextBuilder(MenuBuilder parent)
+    public GUIBuilder(MenuBuilder parent)
     {
         _parent = parent;
     }
@@ -25,25 +24,25 @@ public class TextBuilder : GUIBuilder
         return (calcX, calcY);
     }
 
-    public TextBuilder SetSize(int? width, int? height)
+    public TBuilder SetSize(int? width, int? height)
     {
         Size = (width ?? Size.Width, height ?? Size.Height);
-        return this;
+        return (TBuilder)this;
     }
 
-    public TextBuilder SetWidth(int width)
+    public TBuilder SetWidth(int width)
     {
         SetSize(width, null);
-        return this;
+        return (TBuilder)this;
     }
 
-    public TextBuilder SetHeight(int height)
+    public TBuilder SetHeight(int height)
     {
         SetSize(null, height);
-        return this;
+        return (TBuilder)this;
     }
 
-    public TextBuilder SetWidth(string width)
+    public TBuilder SetWidth(string width)
     {
         if (!width.EndsWith('%')) throw new ArgumentException("Must be percentage");
         string number = width[..^1];
@@ -51,7 +50,55 @@ public class TextBuilder : GUIBuilder
         double percentage = double.Parse(number) / 100;
 
         Size = ((int)(_parent.Size.Width * percentage), Size.Height);
-        return this;
+        return (TBuilder)this;
+    }
+
+    public TBuilder SetPosition(int? X, int? Y)
+    {
+        Position = (X ?? Position.X, Y ?? Position.Y);
+        return (TBuilder)this;
+    }
+
+    public TBuilder SetOffset(int? offsetX, int? offsetY)
+    {
+        int newPosX = Position.X;
+        if (offsetX is not null)
+        {
+            newPosX = (int)(_parent.Size.Width - offsetX);
+        }
+
+        int newPosY = Position.Y;
+        if (offsetY is not null)
+        {
+            newPosY = (int)(_parent.Size.Height - offsetY);
+        }
+
+        Position = (newPosX, newPosY);
+        return (TBuilder)this;
+    }
+
+    public TBuilder SetOffsetVertical(int offset)
+    {
+        SetOffset(null, offset);
+        return (TBuilder)this;
+    }
+
+    public TBuilder SetOffsetHorizontal(int offset)
+    {
+        SetOffset(offset, null);
+        return (TBuilder)this;
+    }
+}
+
+public class TextBuilder : GUIBuilder<TextBuilder>
+{
+    public (ConsoleColor Background, ConsoleColor Foreground) Colours = (ConsoleColor.Black, ConsoleColor.White);
+    public AlignType alignType = AlignType.LEFT;
+    public string? TextContent;
+
+    public TextBuilder(MenuBuilder parent) : base(parent)
+    {
+
     }
 
     public TextBuilder SetColours(ConsoleColor? background, ConsoleColor? foreground)
@@ -84,46 +131,41 @@ public class TextBuilder : GUIBuilder
         return this;
     }
 
-    public TextBuilder SetPosition(int? X, int? Y)
-    {
-        Position = (X ?? Position.X, Y ?? Position.Y);
-        return this;
-    }
-
-    public TextBuilder SetOffset(int? offsetX, int? offsetY)
-    {
-        int newPosX = Position.X;
-        if (offsetX is not null)
-        {
-            newPosX = (int)(_parent.Size.Width - offsetX);
-        }
-
-        int newPosY = Position.Y;
-        if (offsetY is not null)
-        {
-            newPosY = (int)(_parent.Size.Height - offsetY);
-        }
-
-        Position = (newPosX, newPosY);
-        return this;
-    }
-
-    public TextBuilder SetOffsetVertical(int offset)
-    {
-        SetOffset(null, offset);
-        return this;
-    }
-
-    public TextBuilder SetOffsetHorizontal(int offset)
-    {
-        SetOffset(offset, null);
-        return this;
-    }
-
-    public GameObject Build()
+    public override GameObject Build()
     {
         var thisPosition = GetCalculatedPosition();
         return new GUIText(TextContent ?? "<null>", Size.Width, Size.Height, thisPosition.X, thisPosition.Y, alignType) { FGColour = Colours.Foreground, BGColour = Colours.Background };
+    }
+}
+
+public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
+{
+    public string? Label;
+    private List<(string Name, string Value)> _values = [];
+
+    public SelectMenuBuilder(MenuBuilder parent) : base(parent)
+    {
+
+    }
+
+    public SelectMenuBuilder SetLabel(string label)
+    {
+        Label = label;
+        return this;
+    }
+
+    public SelectMenuBuilder AddItem(string Name, string Value)
+    {
+        _values.Add((Name, Value));
+        return this;
+    }
+
+    public override GameObject Build()
+    {
+        var (X, Y) = GetCalculatedPosition();
+        var SelectObject = new GUISelect(Label ?? "Select Menu", Size.Width, Size.Height, X, Y);
+        _values.ForEach((Item) => SelectObject.AddItem(Item.Name, Item.Value));
+        return SelectObject;
     }
 }
 
@@ -131,7 +173,7 @@ public class MenuBuilder
 {
     public (int Width, int Height) Size { get; private set; } = (0, 0);
     public (int X, int Y) Position { get; private set; } = (0, 0);
-    private readonly List<GUIBuilder> _items = [];
+    private readonly List<IGUIBuilder> _items = [];
     public MenuBuilder(int width, int height)
     {
         Size = (width, height);
@@ -175,12 +217,14 @@ public class MenuBuilder
         Position = (posXCentered, posYCentered);
     }
 
-    public void AddText(Action<TextBuilder> configure)
+    private void AddGeneric<T>(Action<T> configure) where T : GUIBuilder<T>
     {
-        var textBuilder = new TextBuilder(this);
-        configure(textBuilder);
-        _items.Add(textBuilder);
+        T builder = (T)Activator.CreateInstance(typeof(T), this)!;
+        configure(builder);
+        _items.Add(builder);
     }
+    public void AddText(Action<TextBuilder> configure) => AddGeneric(configure);
+    public void AddSelectMenu(Action<SelectMenuBuilder> configure) => AddGeneric(configure);
 
     public List<GameObject> Build()
     {

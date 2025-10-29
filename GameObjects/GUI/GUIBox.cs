@@ -10,20 +10,20 @@ public class GUIBox : GameObject
     {
         for (int i = 0; i <= Size.Height; i++)
         {
-            int yPosition = (int)Position.Y + i;
-            Console.SetCursorPosition((int)Position.X, yPosition);
+            int yPosition = Position.Y + i;
+            Console.SetCursorPosition(Position.X, yPosition);
 
-            string fill = new String(' ', (int)Size.Width - 2);
+            string fill = new string(' ', Size.Width - 2);
             string line = $"▌{fill}▐";
 
             if (i == 0)
             {
-                string fillTop = new string('▀', (int)Size.Width - 2);
+                string fillTop = new string('▀', Size.Width - 2);
                 line = $"▛{fillTop}▜";
             }
             if (i == Size.Height)
             {
-                string fillTop = new string('▄', (int)Size.Width - 2);
+                string fillTop = new string('▄', Size.Width - 2);
                 line = $"▙{fillTop}▟";
             }
 

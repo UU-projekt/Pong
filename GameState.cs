@@ -3,7 +3,8 @@ public enum StateOption
     PLAYING,
     MENU,
     GAME_COMPLETED,
-    SHOULD_EXIT
+    SHOULD_EXIT,
+    __DEV_GUITEST
 }
 
 public struct GameInformation

@@ -1,12 +1,14 @@
 ﻿
 var gameState = new GameState("Människa", "Dator");
+gameState.State = StateOption.__DEV_GUITEST;
 
 var factory = new DefaultGameObjectFactory();
 
 var scenes = new Dictionary<StateOption, Scene>
 {
     { StateOption.PLAYING, new GameScene(factory) },
-    { StateOption.GAME_COMPLETED, new GameOver() }
+    { StateOption.GAME_COMPLETED, new GameOver() },
+    { StateOption.__DEV_GUITEST, new DEV_GUITEST() }
 };
 
 Scene? lastScene = null;
