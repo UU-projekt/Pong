@@ -1,7 +1,7 @@
 public class GameOver : Scene
 {
     static int WAIT_BEFORE_TAKING_INPUTS = 1000;
-    static string FOOTER_TEXT = "Press \"END\" to stop playing";
+    static string FOOTER_TEXT = "Press \"END\" to stop playing | \"HOME\" for leaderboard";
     public GameOver()
     {
 
@@ -42,9 +42,13 @@ Duration: {timeString}
             Console.WriteLine("thanks for playing! :D");
             state.State = StateOption.SHOULD_EXIT;
         }
+        else if (key.Key == ConsoleKey.Home)
+        {
+            state.State = StateOption.LEADERBOARD;
+        }
         else
         {
-            state.State = StateOption.PLAYING;
+            state.State = StateOption.MENU;
         }
     }
 }

@@ -10,10 +10,6 @@ public interface IGameObjectFactory
     Paddle CreatePaddle(PlayerType type);
 }
 
-// KRAV #X:
-// 1: Factory Method Pattern
-// 2: Er förklaring av HUR ni använder konceptet. <idk>
-// 3: Er motivation för VARFÖR ni använder det. <idk>
 public class DefaultGameObjectFactory : IGameObjectFactory
 {
     static int DEFAULT_PADDLE_HEIGHT = 5;
@@ -38,7 +34,7 @@ public class DefaultGameObjectFactory : IGameObjectFactory
 
     public Paddle CreatePaddle(PlayerType type)
     {
-        IPaddleController controller = type == PlayerType.HUMAN ? new HumanController() : new CPUController();
+        IPaddleController controller = type == PlayerType.HUMAN ? new HumanController() : new CPUController(AIDifficulty.Easy);
         ConsoleColor paddleColour = DEFAULT_PADDLE_COLOURS[type];
         Paddle paddle = new Paddle(DEFAULT_PADDLE_HEIGHT, controller) { paddleColour = paddleColour };
 

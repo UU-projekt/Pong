@@ -1,14 +1,19 @@
 ﻿
 var gameState = new GameState("Människa", "Dator");
-gameState.State = StateOption.__DEV_GUITEST;
+gameState.State = StateOption.MENU;
 
-var factory = new DefaultGameObjectFactory();
+GenericFactory factory = new NormalMissileFactory();
+if (new Random().NextDouble() > 0.9)
+{
+    factory = new DefectiveMissileFactory();
+}
 
 var scenes = new Dictionary<StateOption, Scene>
 {
     { StateOption.PLAYING, new GameScene(factory) },
     { StateOption.GAME_COMPLETED, new GameOver() },
-    { StateOption.__DEV_GUITEST, new DEV_GUITEST() }
+    { StateOption.LEADERBOARD, new LeaderboardScene() },
+    { StateOption.MENU, new Menu() }
 };
 
 Scene? lastScene = null;

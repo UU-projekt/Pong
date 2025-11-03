@@ -3,6 +3,14 @@ public interface IGUIBuilder
     GameObject Build();
 }
 
+// KRAV #1:
+// 1: Generics
+// 2: Vi använder generics i klassen GUIBuilder för att kunna återanvända logik i olika typer
+//    av GUI element. Detta genom att vi tar in Template argumentet "TBuilder" 
+// 3: Våra builders har ganska mycket kod som är delad, så som position, storlek, och setters för dessa parametrar.
+//    Det var därför naturligt att använda inheritance här. Vi ville dock kunna kedja dessa funktioner genom att funktionen
+//    returnerar sin instans av klassen så man kan köra många funktioner i följd (ex: builder.SetSize(6).SetOffset(7).SetColours(green, blue))
+//    men ville behålla den faktiska builder klassen, inte föräldern, i denna return och använde därför generics med constrait 
 public abstract class GUIBuilder<TBuilder> : IGUIBuilder
     where TBuilder : GUIBuilder<TBuilder>
 {
@@ -142,6 +150,7 @@ public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
 {
     public string? Label;
     private Action<string>? _bindAction;
+    private string? _selected_value;
     private List<(string Name, string Value)> _values = [];
 
     public SelectMenuBuilder(MenuBuilder parent) : base(parent)
@@ -152,6 +161,12 @@ public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
     public SelectMenuBuilder BindValue(Action<string> setter)
     {
         _bindAction = setter;
+        return this;
+    }
+
+    public SelectMenuBuilder SetSelectedValue(string value)
+    {
+        _selected_value = value;
         return this;
     }
 
@@ -172,6 +187,7 @@ public class SelectMenuBuilder : GUIBuilder<SelectMenuBuilder>
         var (X, Y) = GetCalculatedPosition();
         var SelectObject = new GUISelect(Label ?? "Select Menu", Size.Width, Size.Height, X, Y) { OnSelectionChanged = _bindAction };
         _values.ForEach((Item) => SelectObject.AddItem(Item.Name, Item.Value));
+        SelectObject.SetSelected(_selected_value ?? "");
         return SelectObject;
     }
 }

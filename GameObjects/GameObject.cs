@@ -1,7 +1,7 @@
 public abstract class GameObject
 {
     public (int X, int Y) Position { get; private set; } = (0, 0);
-    public (int Width, int Height) Size { get; }
+    public (int Width, int Height) Size { get; set; }
 
     protected GameObject(int width, int height)
     {

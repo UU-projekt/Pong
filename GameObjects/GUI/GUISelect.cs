@@ -33,6 +33,12 @@ public class GUISelect : GameObject, IGuiInteractiveElement
     {
         Items.Add(item);
     }
+
+    public void SetSelected(string selected)
+    {
+        _pointer = Items.FindIndex(s => s.Value == selected);
+    }
+
     public void AddItem(string name, string value) => AddItem(new SelectMenuItem { Name = name, Value = value });
 
     public void SetPointer(int pointer)

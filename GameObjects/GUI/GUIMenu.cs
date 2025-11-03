@@ -5,6 +5,7 @@ public class GUIMenu : GameObject
     public List<GameObject> gameObjects = new();
     private int pointer = 0;
     private GameObject? selectedObject;
+    public event Action<ConsoleKeyInfo>? OnPress;
 
     public GUIMenu(int width, int height)
         : base(width, height)
@@ -56,6 +57,8 @@ public class GUIMenu : GameObject
             if (go is IGuiInteractiveElement) selectedObject = go;
             return;
         }
+
+        OnPress?.Invoke(key);
 
         var gameObject = gameObjects[pointer];
         if (gameObject is IGuiInteractiveElement) ((IGuiInteractiveElement)gameObject).Update(state, key);
